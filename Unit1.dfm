@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 424
-  ClientWidth = 637
+  ClientHeight = 415
+  ClientWidth = 631
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,19 +12,20 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   DesignSize = (
-    637
-    424)
+    631
+    415)
   TextHeight = 15
   object ScrollBox2: TScrollBox
     Left = 8
     Top = 48
     Width = 161
-    Height = 368
+    Height = 359
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
     OnMouseWheelDown = ScrollBox2MouseWheelDown
     OnMouseWheelUp = ScrollBox2MouseWheelUp
+    ExplicitHeight = 368
   end
   object Button1: TButton
     Left = 8
@@ -38,8 +39,8 @@ object Form1: TForm1
   object Memo1: TMemo
     Left = 180
     Top = 48
-    Width = 449
-    Height = 361
+    Width = 437
+    Height = 352
     Anchors = [akLeft, akTop, akRight, akBottom]
     Lines.Strings = (
       'Memo1')
@@ -48,7 +49,7 @@ object Form1: TForm1
     OnChange = Memo1Change
   end
   object Button2: TButton
-    Left = 504
+    Left = 492
     Top = 8
     Width = 121
     Height = 33
@@ -56,6 +57,7 @@ object Form1: TForm1
     Caption = 'Button2'
     TabOrder = 3
     OnClick = Button2Click
+    ExplicitLeft = 504
   end
   object FDConnection1: TFDConnection
     Params.Strings = (

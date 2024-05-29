@@ -21,6 +21,7 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
+    function GetNextNoteName(default: string) : string;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure UpdateNote(note: Note);
@@ -91,9 +92,33 @@ end;
 
 {$ENDREGION}
 
+function TForm1.GetNextNoteName(default: string) : string;
+var
+q: TFDQuery;
+id: integer;
+begin
+  q := TFDQuery.Create(Self);
+  q.Connection := FDConnection1;
+  q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
+  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
+  'where cur != lg + 1 or cur != ld - 1';
+  q.Open();
+  while not q.Eof do
+  begin
+    try
+      id := q.FieldByName('id').AsInteger;
+    except
+       id := 1;
+    end;
+    q.Next;
+  end;
+  q.Close();
+  Result := default + ' ' + id.ToString();
+end;
+
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  InsertNote('Новая заметка')
+  InsertNote(GetNextNoteName('Новая заметка'));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
