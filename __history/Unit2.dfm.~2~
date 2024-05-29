@@ -1,0 +1,25 @@
+object Frame2: TFrame2
+  Left = 0
+  Top = 0
+  Width = 640
+  Height = 480
+  Color = clBlue
+  ParentBackground = False
+  ParentColor = False
+  TabOrder = 0
+  DesignSize = (
+    640
+    480)
+  object Label1: TLabel
+    Left = 3
+    Top = 3
+    Width = 622
+    Height = 462
+    Anchors = [akLeft, akTop, akRight, akBottom]
+    AutoSize = False
+    Caption = 'Label1325235523235'
+    Color = clBtnFace
+    EllipsisPosition = epEndEllipsis
+    ParentColor = False
+  end
+end
