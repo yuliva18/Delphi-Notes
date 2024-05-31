@@ -1,0 +1,56 @@
+unit NoteUnit;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Unit3;
+
+
+type
+  TMyProcEvent = procedure(Sender: TObject) of object;
+  Note = Class
+    private
+      FMyProcEvent : TMyProcEvent;
+    protected
+      procedure DoMyProcEvent(Sender: TObject);
+    public
+      id: integer;
+      body: string;
+      //panel: TPanel;
+      panel: TNoteFrame;
+      procedure Init(Sender: TObject; _id: integer; _body: string);
+      procedure pC(Sender: TObject);
+      property MyProcEvent: TMyProcEvent read FMyProcEvent write FMyProcEvent;
+end;
+
+implementation
+
+//
+procedure Note.DoMyProcEvent(Sender: TObject);
+begin
+  if Assigned(FMyProcEvent) then
+    FMyProcEvent(Sender);
+end;
+
+procedure Note.Init(Sender: TObject; _id: integer; _body: string);
+begin
+  panel := TNoteFrame.Create(nil);
+  panel.Name := 'note' + _id.toString();
+  TComponent(Sender).InsertComponent(panel);
+  panel.Anchors := [akTop, akRight, akLeft];
+  panel.Align := TAlign.alTop;
+  id := _id;
+  body := _body;
+  panel.BodyLabel.Caption := body;
+  panel.DateLabel.Caption := '123';
+  panel.Panel1.OnClick := pC;
+  panel.Realign();
+end;
+
+procedure Note.pC(Sender: TObject);
+begin
+  DoMyProcEvent(Self);
+end;
+
+end.

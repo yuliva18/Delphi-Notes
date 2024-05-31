@@ -1,0 +1,44 @@
+object NoteFrame: TNoteFrame
+  Left = 0
+  Top = 0
+  Width = 340
+  Height = 70
+  TabOrder = 0
+  DesignSize = (
+    340
+    70)
+  object BodyLabel: TLabel
+    Left = 16
+    Top = 13
+    Width = 313
+    Height = 15
+    Anchors = [akLeft, akRight]
+    AutoSize = False
+    Caption = 'Body'
+    EllipsisPosition = epEndEllipsis
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+    StyleElements = [seClient, seBorder]
+  end
+  object DateLabel: TLabel
+    Left = 16
+    Top = 34
+    Width = 313
+    Height = 15
+    Anchors = [akLeft, akRight]
+    AutoSize = False
+    Caption = 'Date'
+    EllipsisPosition = epEndEllipsis
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clGrayText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    StyleElements = [seClient, seBorder]
+  end
+end

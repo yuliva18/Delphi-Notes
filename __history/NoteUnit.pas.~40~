@@ -1,0 +1,51 @@
+unit NoteUnit;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Unit3;
+
+
+type
+  TMyProcEvent = procedure(Sender: TObject) of object;
+  Note = Class
+    private
+      FMyProcEvent : TMyProcEvent;
+      procedure Click(Sender: TObject);
+    protected
+      procedure DoMyProcEvent(Sender: TObject);
+    public
+      id: integer;
+      body: string;
+      date: string;
+      noteFrame: TNoteFrame;
+      procedure Init(Sender: TObject; _id: integer; _body: string; _date: string);
+      property MyProcEvent: TMyProcEvent read FMyProcEvent write FMyProcEvent;
+end;
+
+implementation
+
+procedure Note.DoMyProcEvent(Sender: TObject);
+begin
+  if Assigned(FMyProcEvent) then
+    FMyProcEvent(Sender);
+end;
+
+procedure Note.Init(Sender: TObject; _id: integer; _body: string; _date: string);
+begin
+  noteFrame := TNoteFrame.Create(nil);
+  id := _id;
+  body := _body;
+  date := _date;
+  noteFrame.BodyLabel.Caption := body;
+  noteFrame.DateLabel.Caption := date;
+  noteFrame.ClickEvent := Click;
+end;
+
+procedure Note.Click(Sender: TObject);
+begin
+  DoMyProcEvent(Self);
+end;
+
+end.

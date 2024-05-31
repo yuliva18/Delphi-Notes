@@ -4,48 +4,48 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, NoteFrameUnit;
 
 
 type
-  TMyProcEvent = procedure(Sender: TObject) of object;
+  TSelectEvent = procedure(Sender: TObject) of object;
   Note = Class
     private
-      FMyProcEvent : TMyProcEvent;
+      FSelectEvent : TSelectEvent;
+      procedure Click(Sender: TObject);
     protected
-      procedure DoMyProcEvent(Sender: TObject);
+      procedure DoSelectEvent(Sender: TObject);
     public
       id: integer;
       body: string;
-      panel: TPanel;
-      procedure Init(Sender: TObject; _id: integer; _body: string);
-      procedure pC(Sender: TObject);
-      property MyProcEvent: TMyProcEvent read FMyProcEvent write FMyProcEvent;
+      date: string;
+      noteFrame: TNoteFrame;
+      procedure Init(Sender: TObject; _id: integer; _body: string; _date: string);
+      property SelectEvent: TSelectEvent read FSelectEvent write FSelectEvent;
 end;
 
 implementation
 
-//
-procedure Note.DoMyProcEvent(Sender: TObject);
+procedure Note.DoSelectEvent(Sender: TObject);
 begin
-  if Assigned(FMyProcEvent) then
-    FMyProcEvent(Sender);
+  if Assigned(FSelectEvent) then
+    FSelectEvent(Sender);
 end;
 
-procedure Note.Init(Sender: TObject; _id: integer; _body: string);
+procedure Note.Init(Sender: TObject; _id: integer; _body: string; _date: string);
 begin
-  panel := TPanel.Create(TComponent(Sender));
-  panel.Anchors := [akTop, akRight, akLeft];
-  panel.Align := TAlign.alTop;
+  noteFrame := TNoteFrame.Create(nil);
   id := _id;
   body := _body;
-  panel.Caption := body;
-  panel.OnClick := pC;
+  date := _date;
+  noteFrame.BodyLabel.Caption := body.Split([chr(13)])[0];
+  noteFrame.DateLabel.Caption := date;
+  noteFrame.ClickEvent := Click;
 end;
 
-procedure Note.pC(Sender: TObject);
+procedure Note.Click(Sender: TObject);
 begin
-  DoMyProcEvent(Self);
+  DoSelectEvent(Self);
 end;
 
 end.

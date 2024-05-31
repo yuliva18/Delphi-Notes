@@ -3,7 +3,8 @@ program Project1;
 uses
   Vcl.Forms,
   Unit1 in 'Unit1.pas' {Form1},
-  NoteUnit in 'NoteUnit.pas';
+  NoteUnit in 'NoteUnit.pas',
+  Unit3 in 'Unit3.pas' {NoteFrame: TFrame};
 
 {$R *.res}
 

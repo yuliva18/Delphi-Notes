@@ -103,6 +103,11 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="NoteUnit.pas"/>
+        <DCCReference Include="Unit3.pas">
+            <Form>NoteFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
