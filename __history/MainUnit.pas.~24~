@@ -1,10 +1,10 @@
-unit Unit1;
+unit MainUnit;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, NoteUnit, Unit3,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, NoteUnit, NoteFrameUnit,
   FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf,
   FireDAC.Phys.Intf, FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async,
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
@@ -21,13 +21,12 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
-    function GetNextNoteName(default: string) : string;
+    //function GetNextNoteName(default: string) : string;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
-    procedure UpdateNote(note: Note);
-    procedure InsertNote(body: String);
+    //procedure InsertNote(body: String);
     procedure ChangeNote(Sender: TObject);
-    procedure AddNote(q: TFDQuery);
+    procedure AddNote(n: Note);
     procedure ScrollBox2MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox2MouseWheelUp(Sender: TObject; Shift: TShiftState;
@@ -55,6 +54,7 @@ s, i: INTEGER;
 n: Note;
 q: TFDQuery;
 begin
+  Memo1.Text := '';
   notesList := TList.Create();
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
@@ -62,7 +62,7 @@ begin
   q.Open();
   while not q.Eof do
   begin
-    AddNote(q);
+    AddNote(Note.Create(self, q));
     q.Next;
   end;
   q.Close();
@@ -90,33 +90,40 @@ end;
 
 {$ENDREGION}
 
-function TForm1.GetNextNoteName(default: string) : string;
-var
-q: TFDQuery;
-id: integer;
-begin
-  q := TFDQuery.Create(Self);
-  q.Connection := FDConnection1;
-  q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
-  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
-  'where cur != lg + 1 or cur != ld - 1';
-  q.Open();
-  while not q.Eof do
-  begin
-    try
-      id := q.FieldByName('id').AsInteger;
-    except
-       id := 1;
-    end;
-    q.Next;
-  end;
-  q.Close();
-  Result := default + ' ' + id.ToString();
-end;
+//function TForm1.GetNextNoteName(default: string) : string;
+//var
+//q: TFDQuery;
+//id: integer;
+//begin
+//  q := TFDQuery.Create(Self);
+//  q.Connection := FDConnection1;
+//  q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
+//  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
+//  'where cur != lg + 1 or cur != ld - 1';
+//  q.Open();
+//  while not q.Eof do
+//  begin
+//    try
+//      id := q.FieldByName('id').AsInteger;
+//    except
+//       id := 1;
+//    end;
+//    q.Next;
+//  end;
+//  q.Close();
+//  Result := default + ' ' + id.ToString();
+//end;
 
 procedure TForm1.Button1Click(Sender: TObject);
+var n: Note;
 begin
-  InsertNote(GetNextNoteName('Новая заметка'));
+
+  //InsertNote(GetNextNoteName('Новая заметка'));
+  n := Note.Create(Self, FDConnection1, 'Новая заметка');
+  notesList.Add(n);
+  n.SelectEvent := ChangeNote;
+  n.noteFrame.Parent := ScrollBox2;
+  ScrollBox2.Realign();
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -129,74 +136,52 @@ begin
   if sNote <> nil then
     sNote.noteFrame.ParentBackground := true;
   sNote := Note(Sender);
-  Memo1.Text := sNote.body;
+  Memo1.Text := sNote.model.body;
   snote.noteFrame.ParentBackground := false;
-  sNote.noteFrame.Color := clRed;
+  sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
 
-procedure TForm1.AddNote(q: TFDQuery);
-var n: Note;
+procedure TForm1.AddNote(n: Note);
 begin
-  n := Note.Create();
-  n.Init(Self, q.FieldByName('id').AsInteger, q.FieldByName('body').AsString, q.FieldByName('date').AsString);
-  n.noteFrame.Parent := ScrollBox2;
-  n.SelectEvent := ChangeNote;
   notesList.Add(n);
+  n.SelectEvent := ChangeNote;
+  n.noteFrame.Parent := ScrollBox2;
   ScrollBox2.Realign();
 end;
 
 procedure TForm1.DeleteNote(note: Note);
-var
-q: TFDQuery;
 begin
   notesList.Remove(note);
   if notesList.Count > 0 then
     ChangeNote(notesList[notesList.Count - 1]);
   ScrollBox2.RemoveControl(note.noteFrame);
-  q := TFDQuery.Create(Self);
-  q.Connection := FDConnection1;
-  q.SQL.Text := Format('DELETE FROM notes WHERE id = %d',[note.id]);
-  q.ExecSQL();
-
+  note.model.Delete();
 end;
 
-procedure TForm1.InsertNote(body: String);
-var
-q: TFDQuery;
-id: integer;
-n: Note;
-begin
-  q := TFDQuery.Create(Self);
-  q.Connection := FDConnection1;
-  q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
-  q.ExecSQL();
-  id := integer(FDConnection1.GetLastAutoGenValue('notes'));
-  q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
-  q.Open();
-  while not q.Eof do
-  begin
-    AddNote(q);
-    q.Next;
-  end;
-  q.Close();
-end;
+//procedure TForm1.InsertNote(body: String);
+//var
+//q: TFDQuery;
+//id: integer;
+//begin
+//  q := TFDQuery.Create(Self);
+//  q.Connection := FDConnection1;
+//  q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
+//  q.ExecSQL();
+//  id := integer(FDConnection1.GetLastAutoGenValue('notes'));
+//  q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
+//  q.Open();
+//  while not q.Eof do
+//  begin
+//    AddNote(q);
+//    q.Next;
+//  end;
+//  q.Close();
+//end;
 
 procedure TForm1.Memo1Change(Sender: TObject);
 begin
-  UpdateNote(sNote);
-end;
-
-procedure TForm1.UpdateNote(note: Note);
-var
-q: TFDQuery;
-s: string;
-begin
-  note.body := Memo1.Text;
-  q := TFDQuery.Create(Self);
-  q.Connection := FDConnection1;
-  q.SQL.Text := Format('UPDATE notes SET body = "%s" WHERE id = %d',[note.body, note.id]);
-  q.ExecSQL();
-  note.noteFrame.BodyLabel.Caption := note.body;
+  if sNote <> nil then
+    sNote.model.body := Memo1.Text;
 end;
 
 end.

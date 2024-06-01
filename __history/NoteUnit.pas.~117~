@@ -122,8 +122,6 @@ var
   q: TFDQuery;
   id: integer;
 begin
-  _conn := conn;
-  body := GetNextNoteName(baseBody);
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
@@ -131,7 +129,7 @@ begin
   id := integer(conn.GetLastAutoGenValue('notes'));
   q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
   q.Open();
-  Create(q);
+  self := Create(q);
   q.Close();
 end;
 

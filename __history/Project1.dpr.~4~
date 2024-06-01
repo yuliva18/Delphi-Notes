@@ -2,9 +2,9 @@ program Project1;
 
 uses
   Vcl.Forms,
-  MainUnit in 'MainUnit.pas' {Form1},
+  Unit1 in 'Unit1.pas' {Form1},
   NoteUnit in 'NoteUnit.pas',
-  NoteFrameUnit in 'NoteFrameUnit.pas' {NoteFrame: TFrame};
+  Unit3 in 'Unit3.pas' {NoteFrame: TFrame};
 
 {$R *.res}
 

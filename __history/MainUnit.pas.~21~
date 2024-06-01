@@ -21,10 +21,12 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
+    //function GetNextNoteName(default: string) : string;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
+    //procedure InsertNote(body: String);
     procedure ChangeNote(Sender: TObject);
-    procedure AddNote(n: Note);
+    procedure AddNote(q: TFDQuery);
     procedure ScrollBox2MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox2MouseWheelUp(Sender: TObject; Shift: TShiftState;
@@ -60,8 +62,7 @@ begin
   q.Open();
   while not q.Eof do
   begin
-    n := Note.Create(self, q);
-    AddNote(n);
+    AddNote(q);
     q.Next;
   end;
   q.Close();
@@ -89,17 +90,45 @@ end;
 
 {$ENDREGION}
 
+//function TForm1.GetNextNoteName(default: string) : string;
+//var
+//q: TFDQuery;
+//id: integer;
+//begin
+//  q := TFDQuery.Create(Self);
+//  q.Connection := FDConnection1;
+//  q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
+//  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
+//  'where cur != lg + 1 or cur != ld - 1';
+//  q.Open();
+//  while not q.Eof do
+//  begin
+//    try
+//      id := q.FieldByName('id').AsInteger;
+//    except
+//       id := 1;
+//    end;
+//    q.Next;
+//  end;
+//  q.Close();
+//  Result := default + ' ' + id.ToString();
+//end;
+
 procedure TForm1.Button1Click(Sender: TObject);
 var n: Note;
 begin
+
+  //InsertNote(GetNextNoteName('Новая заметка'));
   n := Note.Create(Self, FDConnection1, 'Новая заметка');
-  AddNote(n);
+  notesList.Add(n);
+  n.SelectEvent := ChangeNote;
+  n.noteFrame.Parent := ScrollBox2;
+  ScrollBox2.Realign();
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-  if sNote <> nil then
-    DeleteNote(sNote);
+  DeleteNote(sNote);
 end;
 
 procedure TForm1.ChangeNote(Sender: TObject);
@@ -112,8 +141,10 @@ begin
   sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
 
-procedure TForm1.AddNote(n: Note);
+procedure TForm1.AddNote(q: TFDQuery);
+var n: Note;
 begin
+  n := Note.Create(Self, q);
   notesList.Add(n);
   n.SelectEvent := ChangeNote;
   n.noteFrame.Parent := ScrollBox2;
@@ -124,12 +155,30 @@ procedure TForm1.DeleteNote(note: Note);
 begin
   notesList.Remove(note);
   if notesList.Count > 0 then
-    ChangeNote(notesList[notesList.Count - 1])
-  else
-    sNote := nil;
+    ChangeNote(notesList[notesList.Count - 1]);
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
 end;
+
+//procedure TForm1.InsertNote(body: String);
+//var
+//q: TFDQuery;
+//id: integer;
+//begin
+//  q := TFDQuery.Create(Self);
+//  q.Connection := FDConnection1;
+//  q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
+//  q.ExecSQL();
+//  id := integer(FDConnection1.GetLastAutoGenValue('notes'));
+//  q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
+//  q.Open();
+//  while not q.Eof do
+//  begin
+//    AddNote(q);
+//    q.Next;
+//  end;
+//  q.Close();
+//end;
 
 procedure TForm1.Memo1Change(Sender: TObject);
 begin

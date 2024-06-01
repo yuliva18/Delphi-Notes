@@ -98,12 +98,12 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Unit1.pas">
+        <DCCReference Include="MainUnit.pas">
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="NoteUnit.pas"/>
-        <DCCReference Include="Unit3.pas">
+        <DCCReference Include="NoteFrameUnit.pas">
             <Form>NoteFrame</Form>
             <FormType>dfm</FormType>
             <DesignClass>TFrame</DesignClass>

@@ -98,8 +98,7 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-  if sNote <> nil then
-    DeleteNote(sNote);
+  DeleteNote(sNote);
 end;
 
 procedure TForm1.ChangeNote(Sender: TObject);
@@ -124,9 +123,7 @@ procedure TForm1.DeleteNote(note: Note);
 begin
   notesList.Remove(note);
   if notesList.Count > 0 then
-    ChangeNote(notesList[notesList.Count - 1])
-  else
-    sNote := nil;
+    ChangeNote(notesList[notesList.Count - 1]);
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
 end;

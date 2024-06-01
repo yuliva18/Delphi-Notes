@@ -112,7 +112,7 @@ end;
 constructor NoteModel.Create(q: TFDQuery);
 begin
   self._id := q.FieldByName('id').AsInteger;
-  self._body := q.FieldByName('body').AsString;
+  self.body := q.FieldByName('body').AsString;
   self._date := q.FieldByName('date').AsString;
   self._conn := TFDConnection(q.Connection);
 end;
@@ -122,8 +122,6 @@ var
   q: TFDQuery;
   id: integer;
 begin
-  _conn := conn;
-  body := GetNextNoteName(baseBody);
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
