@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.788,C:\Users\phant\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Users\phant\Desktop\Delphi-Notes\Unit1.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.181,=C:\Users\phant\Desktop\Delphi-Notes\Unit3.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.494,=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.605,C:\Users\phant\Desktop\Delphi-Notes\Unit1.dfm=C:\Users\phant\Desktop\Delphi-Notes\MainUnit.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.788,C:\Users\phant\Desktop\Delphi-Notes\Unit1.dfm=C:\Users\phant\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.234,C:\Users\phant\Desktop\Delphi-Notes\Unit3.pas=C:\Users\phant\Desktop\Delphi-Notes\NoteFrameUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\phant\Desktop\Delphi-Notes\Note.pas=C:\Users\phant\Desktop\Delphi-Notes\NoteUnit.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.457,=C:\Users\phant\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.703,C:\Users\phant\Desktop\Delphi-Notes\Note.pas=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.143,C:\Users\phant\Desktop\Delphi-Notes\NoteUnit.pas=C:\Users\phant\Desktop\Delphi-Notes\Note.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.788,C:\Users\phant\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Users\phant\Desktop\Delphi-Notes\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.305,C:\Users\phant\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Users\phant\Desktop\Delphi-Notes\Project1.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.691,C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas=</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.549,=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.235,C:\Users\phant\Desktop\Delphi-Notes\Unit3.dfm=C:\Users\phant\Desktop\Delphi-Notes\NoteFrameUnit.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.040,=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
-    <Transaction>2024.05.31 16:36:39.234,C:\Users\phant\Desktop\Delphi-Notes\NoteFrameUnit.pas=C:\Users\phant\Desktop\Delphi-Notes\Unit3.pas</Transaction>
-    <Transaction>2024.05.31 16:36:39.235,C:\Users\phant\Desktop\Delphi-Notes\NoteFrameUnit.dfm=C:\Users\phant\Desktop\Delphi-Notes\Unit3.dfm</Transaction>
-    <Transaction>2024.05.31 16:37:23.605,C:\Users\phant\Desktop\Delphi-Notes\MainUnit.pas=C:\Users\phant\Desktop\Delphi-Notes\Unit1.pas</Transaction>
-    <Transaction>2024.05.31 16:37:23.605,C:\Users\phant\Desktop\Delphi-Notes\MainUnit.dfm=C:\Users\phant\Desktop\Delphi-Notes\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.605,C:\Users\phant\Desktop\Delphi-Notes\Unit1.pas=C:\Users\phant\Desktop\Delphi-Notes\MainUnit.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.788,C:\Users\phant\Desktop\Delphi-Notes\Unit1.pas=C:\Users\phant\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.305,C:\Users\phant\Desktop\Delphi-Notes\Project1.dproj=C:\Users\phant\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.703,C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas=C:\Users\phant\Desktop\Delphi-Notes\Note.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.494,=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.549,=C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.691,C:\Users\phant\Desktop\Delphi-Notes\Unit2.pas=</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="NoteUnit.pas"/>

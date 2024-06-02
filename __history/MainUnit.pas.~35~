@@ -21,6 +21,7 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
+    Edit1: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure ChangeNote(Sender: TObject);
@@ -70,7 +71,9 @@ begin
     Note(notesList[notesList.Count - i - 1]).noteFrame.Parent := ScrollBox2;
   end;
   if notesList.Count > 0 then
-    ChangeNote(notesList[0]);
+    ChangeNote(notesList[0])
+  else
+    Memo1.Enabled := false;
 end;
 
 {$REGION 'ScrollEvents'}
@@ -108,6 +111,8 @@ begin
     sNote.noteFrame.ParentBackground := true;
   sNote := Note(Sender);
   Memo1.Text := sNote.model.body;
+  Memo1.Enabled := true;
+  Edit1.Text := sNote.model.title;
   snote.noteFrame.ParentBackground := false;
   sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
@@ -124,7 +129,13 @@ procedure TForm1.DeleteNote(note: Note);
 begin
   notesList.Remove(note);
   if notesList.Count > 0 then
-    ChangeNote(notesList[notesList.Count - 1]);
+    ChangeNote(notesList[notesList.Count - 1])
+  else
+    begin
+      sNote := nil;
+      Memo1.Text := '';
+      Memo1.Enabled := false;
+    end;
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
 end;

@@ -21,10 +21,9 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
-    //function GetNextNoteName(default: string) : string;
+    Edit1: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
-    //procedure InsertNote(body: String);
     procedure ChangeNote(Sender: TObject);
     procedure AddNote(n: Note);
     procedure ScrollBox2MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -34,6 +33,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Memo1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
   private
     sNote: Note;
   public
@@ -55,23 +55,27 @@ n: Note;
 q: TFDQuery;
 begin
   Memo1.Text := '';
+  Edit1.Text := '';
   notesList := TList.Create();
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
-  q.SQL.Text := 'SELECT * from notes';
+  q.SQL.Text := 'SELECT * from notes order by date desc';
   q.Open();
   while not q.Eof do
   begin
-    AddNote(Note.Create(self, q));
+    n := Note.Create(self, q);
+    AddNote(n);
     q.Next;
   end;
   q.Close();
   for i := 0 to notesList.Count - 1 do
   begin
-    Note(notesList[notesList.Count - i - 1]).noteFrame.Parent := ScrollBox2;
+    Note(notesList[i]).noteFrame.Parent := ScrollBox2;
   end;
   if notesList.Count > 0 then
-    ChangeNote(notesList[0]);
+    ChangeNote(notesList[0])
+  else
+    Memo1.Enabled := false;
 end;
 
 {$REGION 'ScrollEvents'}
@@ -90,45 +94,17 @@ end;
 
 {$ENDREGION}
 
-//function TForm1.GetNextNoteName(default: string) : string;
-//var
-//q: TFDQuery;
-//id: integer;
-//begin
-//  q := TFDQuery.Create(Self);
-//  q.Connection := FDConnection1;
-//  q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
-//  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
-//  'where cur != lg + 1 or cur != ld - 1';
-//  q.Open();
-//  while not q.Eof do
-//  begin
-//    try
-//      id := q.FieldByName('id').AsInteger;
-//    except
-//       id := 1;
-//    end;
-//    q.Next;
-//  end;
-//  q.Close();
-//  Result := default + ' ' + id.ToString();
-//end;
-
 procedure TForm1.Button1Click(Sender: TObject);
 var n: Note;
 begin
-
-  //InsertNote(GetNextNoteName('Новая заметка'));
   n := Note.Create(Self, FDConnection1, 'Новая заметка');
-  notesList.Add(n);
-  n.SelectEvent := ChangeNote;
-  n.noteFrame.Parent := ScrollBox2;
-  ScrollBox2.Realign();
+  AddNote(n);
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-  DeleteNote(sNote);
+  if sNote <> nil then
+    DeleteNote(sNote);
 end;
 
 procedure TForm1.ChangeNote(Sender: TObject);
@@ -137,6 +113,9 @@ begin
     sNote.noteFrame.ParentBackground := true;
   sNote := Note(Sender);
   Memo1.Text := sNote.model.body;
+  Memo1.Enabled := true;
+  Edit1.Text := sNote.model.title;
+  Edit1.Enabled := true;
   snote.noteFrame.ParentBackground := false;
   sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
@@ -153,30 +132,22 @@ procedure TForm1.DeleteNote(note: Note);
 begin
   notesList.Remove(note);
   if notesList.Count > 0 then
-    ChangeNote(notesList[notesList.Count - 1]);
+    ChangeNote(notesList[notesList.Count - 1])
+  else
+    begin
+      sNote := nil;
+      Memo1.Text := '';
+      Memo1.Enabled := false;
+    end;
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
 end;
 
-//procedure TForm1.InsertNote(body: String);
-//var
-//q: TFDQuery;
-//id: integer;
-//begin
-//  q := TFDQuery.Create(Self);
-//  q.Connection := FDConnection1;
-//  q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
-//  q.ExecSQL();
-//  id := integer(FDConnection1.GetLastAutoGenValue('notes'));
-//  q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
-//  q.Open();
-//  while not q.Eof do
-//  begin
-//    AddNote(q);
-//    q.Next;
-//  end;
-//  q.Close();
-//end;
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  if sNote <> nil then
+    sNote.model.title := Edit1.Text;
+end;
 
 procedure TForm1.Memo1Change(Sender: TObject);
 begin

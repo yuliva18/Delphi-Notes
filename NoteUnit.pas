@@ -18,17 +18,20 @@ type
     private
       _conn: TFDConnection;
       _id: integer;
-      _date, _body: string;
+      _date, _body, _title: string;
       procedure setBody(value: string);
+      procedure setTitle(value: string);
       procedure Update();
       function GetNextNoteName(default: string) : string;
     public
       BodyPropertyChangedEvent: TPropertyChangedEvent;
+      TitlePropertyChangedEvent: TPropertyChangedEvent;
       constructor Create(q: TFDQuery); overload;
-      constructor Create(conn: TFDConnection; baseBody: string); overload;
+      constructor Create(conn: TFDConnection; baseTitle: string); overload;
       property conn: TFDConnection read _conn;
       property id: integer read _id;
       property body: string read _body write setBody;
+      property title: string read _title write setTitle;
       property date: string read _date;
       procedure Delete();
 end;
@@ -42,6 +45,7 @@ type
       procedure Click(Sender: TObject);
       procedure DoSelectEvent(Sender: TObject);
       procedure ReviewBody();
+      procedure ReviewTitle();
     public
       noteFrame: TNoteFrame;
       constructor Create(Sender: TObject; q: TFDQuery); overload;
@@ -62,7 +66,7 @@ var
 begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
-  q.SQL.Text := Format('UPDATE notes SET body = "%s" WHERE id = %d',[body, id]);
+  q.SQL.Text := Format('UPDATE notes SET title = "%s", body = "%s" WHERE id = %d',[title, body, id]);
   q.ExecSQL();
 end;
 
@@ -85,6 +89,15 @@ begin
       Update();
 end;
 
+procedure NoteModel.setTitle(value: String);
+begin
+  _title := value;
+  if Assigned(TitlePropertyChangedEvent) then
+    TitlePropertyChangedEvent();
+    if conn <> nil then
+      Update();
+end;
+
 function NoteModel.GetNextNoteName(default: string) : string;
 var
 q: TFDQuery;
@@ -93,7 +106,7 @@ begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
-  'from (select distinct cast(substr(body, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where body like "' + default+ ' %" order by cur)) ' +
+  'from (select distinct cast(substr(title, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where title like "' + default+ ' %" order by cur)) ' +
   'where cur != lg + 1 or cur != ld - 1';
   q.Open();
   while not q.Eof do
@@ -112,21 +125,22 @@ end;
 constructor NoteModel.Create(q: TFDQuery);
 begin
   self._id := q.FieldByName('id').AsInteger;
+  self._title := q.FieldByName('title').AsString;
   self._body := q.FieldByName('body').AsString;
   self._date := q.FieldByName('date').AsString;
   self._conn := TFDConnection(q.Connection);
 end;
 
-constructor NoteModel.Create(conn: TFDConnection; baseBody: string);
+constructor NoteModel.Create(conn: TFDConnection; baseTitle: string);
 var
   q: TFDQuery;
   id: integer;
 begin
   _conn := conn;
-  body := GetNextNoteName(baseBody);
+  title := GetNextNoteName(baseTitle);
   q := TFDQuery.Create(nil);
   q.Connection := conn;
-  q.SQL.Text := Format('INSERT INTO notes(body) VALUES("%s")',[body]);
+  q.SQL.Text := Format('INSERT INTO notes(title, body) VALUES("%s", "%s")',[title, '']);
   q.ExecSQL();
   id := integer(conn.GetLastAutoGenValue('notes'));
   q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
@@ -144,7 +158,9 @@ begin
   noteFrame := TNoteFrame.Create(nil);
   _model := NoteModel.Create(q);
   _model.BodyPropertyChangedEvent := ReviewBody;
-  noteFrame.BodyLabel.Caption := model.body.Split([chr(13)])[0];
+  _model.TitlePropertyChangedEvent := ReviewTitle;
+  noteFrame.TitleLabel.Caption := model.title;
+  noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];
   noteFrame.DateLabel.Caption := model.date;
   noteFrame.ClickEvent := Click;
 end;
@@ -154,7 +170,9 @@ begin
   noteFrame := TNoteFrame.Create(nil);
   _model := NoteModel.Create(conn, baseBody);
   _model.BodyPropertyChangedEvent := ReviewBody;
-  noteFrame.BodyLabel.Caption := model.body.Split([chr(13)])[0];
+  _model.TitlePropertyChangedEvent := ReviewTitle;
+  noteFrame.TitleLabel.Caption := model.title;
+  noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];
   noteFrame.DateLabel.Caption := model.date;
   noteFrame.ClickEvent := Click;
 end;
@@ -172,7 +190,12 @@ end;
 
 procedure Note.ReviewBody();
 begin
-  noteFrame.BodyLabel.Caption := model.body.Split([chr(13)])[0];
+  noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];
+end;
+
+procedure Note.ReviewTitle();
+begin
+  noteFrame.TitleLabel.Caption := model.title;
 end;
 
 end.

@@ -21,6 +21,7 @@ type
     FDQuery1: TFDQuery;
     Memo1: TMemo;
     Button2: TButton;
+    Edit1: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure ChangeNote(Sender: TObject);
@@ -32,6 +33,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Memo1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
   private
     sNote: Note;
   public
@@ -53,10 +55,11 @@ n: Note;
 q: TFDQuery;
 begin
   Memo1.Text := '';
+  Edit1.Text := '';
   notesList := TList.Create();
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
-  q.SQL.Text := 'SELECT * from notes';
+  q.SQL.Text := 'SELECT * from notes order by date desc';
   q.Open();
   while not q.Eof do
   begin
@@ -67,12 +70,15 @@ begin
   q.Close();
   for i := 0 to notesList.Count - 1 do
   begin
-    Note(notesList[notesList.Count - i - 1]).noteFrame.Parent := ScrollBox2;
+    Note(notesList[i]).noteFrame.Parent := ScrollBox2;
   end;
   if notesList.Count > 0 then
     ChangeNote(notesList[0])
   else
-    Memo1.Enabled := false;
+    begin
+      Memo1.Enabled := false;
+      Edit1.Enabled := false;
+    end;
 end;
 
 {$REGION 'ScrollEvents'}
@@ -111,6 +117,8 @@ begin
   sNote := Note(Sender);
   Memo1.Text := sNote.model.body;
   Memo1.Enabled := true;
+  Edit1.Text := sNote.model.title;
+  Edit1.Enabled := true;
   snote.noteFrame.ParentBackground := false;
   sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
@@ -133,9 +141,17 @@ begin
       sNote := nil;
       Memo1.Text := '';
       Memo1.Enabled := false;
+      Edit1.Text := '';
+      Edit1.Enabled := false;
     end;
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
+end;
+
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  if sNote <> nil then
+    sNote.model.title := Edit1.Text;
 end;
 
 procedure TForm1.Memo1Change(Sender: TObject);
