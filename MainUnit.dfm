@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 343
-  ClientWidth = 583
+  ClientHeight = 316
+  ClientWidth = 565
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,14 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   DesignSize = (
-    583
-    343)
+    565
+    316)
   TextHeight = 15
   object ScrollBox2: TScrollBox
     Left = 8
     Top = 80
     Width = 161
-    Height = 255
+    Height = 228
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
@@ -36,7 +36,7 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 444
+    Left = 426
     Top = 8
     Width = 131
     Height = 33
@@ -48,8 +48,8 @@ object Form1: TForm1
   object Memo1: TMemo
     Left = 175
     Top = 80
-    Width = 400
-    Height = 255
+    Width = 382
+    Height = 228
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -67,7 +67,7 @@ object Form1: TForm1
   object Edit1: TEdit
     Left = 175
     Top = 48
-    Width = 400
+    Width = 382
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = RUSSIAN_CHARSET

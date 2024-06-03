@@ -167,36 +167,32 @@ begin
   result := titlelr(Item1, Item2) * -1;
 end;
 
-procedure TForm1.NotesToScrollBox();
-var
-i: integer;
-begin
-  ScrollBox2.DestroyComponents();
-  ScrollBox2.DisableAlign();
-  for i := 0 to notesList.Count - 1 do
-  begin
-    Note(notesList[i]).noteFrame.Parent := ScrollBox2;
-  end;
-  ScrollBox2.EnableAlign();
-end;
-
-procedure TForm1.Sort();
+procedure TForm1.NotesToScrollBox;
 var
   i: Integer;
 begin
+  ScrollBox2.DisableAlign();
   for i := 0 to notesList.Count - 1 do
-  begin
+    Note(notesList[i]).noteFrame.Parent := ScrollBox2;
+  ScrollBox2.EnableAlign();
+  ScrollBox2.Realign();
+end;
+
+procedure TForm1.Sort;
+var
+  i: Integer;
+begin
+  ScrollBox2.Visible := false;
+  for i := 0 to notesList.Count - 1 do
     Note(notesList[i]).noteFrame.Parent := nil;
+  case ComboBox1.ItemIndex of
+    0: notesList.Sort(titlelr);
+    1: notesList.Sort(titlerl);
+    2: notesList.Sort(idrl);
+    3: notesList.Sort(idlr);
   end;
-  if ComboBox1.ItemIndex = 0 then
-    notesList.Sort(titlelr)
-  else if ComboBox1.ItemIndex = 1 then
-    notesList.Sort(titlerl)
-  else if ComboBox1.ItemIndex = 2 then
-    notesList.Sort(idrl)
-  else if ComboBox1.ItemIndex = 3 then
-    notesList.Sort(idlr);
-  NotesToScrollbox();
+  NotesToScrollBox();
+  ScrollBox2.Visible := true;
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
@@ -227,6 +223,7 @@ begin
     end;
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
+  note.Free();
 end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
