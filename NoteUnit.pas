@@ -60,13 +60,18 @@ implementation
 //                                             NoteModel
 //-------------------------------------------------------------------------------------------------------
 
+function toSQL(s: string) : string;
+begin
+  result := s.Replace('"','""').Replace('\','\\')	;
+end;
+
 procedure NoteModel.Update();
 var
   q: TFDQuery;
 begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
-  q.SQL.Text := Format('UPDATE notes SET title = "%s", body = "%s" WHERE id = %d',[title, body, id]);
+  q.SQL.Text := Format('UPDATE notes SET title = "%s", body = "%s" WHERE id = %d',[toSQL(title), toSQL(body), id]);
   q.ExecSQL();
 end;
 

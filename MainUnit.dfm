@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 379
-  ClientWidth = 607
+  ClientHeight = 343
+  ClientWidth = 583
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,14 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   DesignSize = (
-    607
-    379)
+    583
+    343)
   TextHeight = 15
   object ScrollBox2: TScrollBox
     Left = 8
-    Top = 48
+    Top = 80
     Width = 161
-    Height = 323
+    Height = 255
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
@@ -36,7 +36,7 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 468
+    Left = 444
     Top = 8
     Width = 131
     Height = 33
@@ -48,11 +48,17 @@ object Form1: TForm1
   object Memo1: TMemo
     Left = 175
     Top = 80
-    Width = 424
-    Height = 291
+    Width = 400
+    Height = 255
     Anchors = [akLeft, akTop, akRight, akBottom]
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    Font.Style = []
     Lines.Strings = (
       'Memo1')
+    ParentFont = False
     ParentShowHint = False
     ShowHint = False
     TabOrder = 3
@@ -61,13 +67,27 @@ object Form1: TForm1
   object Edit1: TEdit
     Left = 175
     Top = 48
-    Width = 424
-    Height = 26
+    Width = 400
+    Height = 23
     Anchors = [akLeft, akTop, akRight]
-    AutoSize = False
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 4
     TextHint = #1047#1072#1075#1086#1083#1086#1074#1086#1082' '
     OnChange = Edit1Change
+  end
+  object ComboBox1: TComboBox
+    Left = 8
+    Top = 48
+    Width = 161
+    Height = 23
+    TabOrder = 5
+    Text = 'ComboBox1'
+    OnChange = ComboBox1Change
   end
   object FDConnection1: TFDConnection
     Params.Strings = (

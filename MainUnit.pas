@@ -10,7 +10,7 @@ uses
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait,
   Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids;
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids, System.Generics.Defaults;
 
 
 type
@@ -22,10 +22,13 @@ type
     Memo1: TMemo;
     Button2: TButton;
     Edit1: TEdit;
+    ComboBox1: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure ChangeNote(Sender: TObject);
     procedure AddNote(n: Note);
+    procedure Sort();
+    procedure NotesToScrollBox();
     procedure ScrollBox2MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox2MouseWheelUp(Sender: TObject; Shift: TShiftState;
@@ -34,6 +37,7 @@ type
     procedure Memo1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
   private
     sNote: Note;
   public
@@ -56,10 +60,17 @@ q: TFDQuery;
 begin
   Memo1.Text := '';
   Edit1.Text := '';
+  ComboBox1.Items.Add('А-Я');
+  ComboBox1.Items.Add('Я-А');
+  ComboBox1.Items.Add('Сначала новые');
+  ComboBox1.Items.Add('Сначала старые');
+  ComboBox1.Style:=csDropDownList;
   notesList := TList.Create();
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
-  q.SQL.Text := 'SELECT * from notes order by date desc';
+  q.SQL.Text := 'SELECT * from notes';
+  Combobox1.ItemIndex := 2;
+  Sort();
   q.Open();
   while not q.Eof do
   begin
@@ -123,12 +134,82 @@ begin
   sNote.noteFrame.Color := RGB(220, 220, 220);
 end;
 
+function idlr(Item1 : Pointer; Item2 : Pointer) : Integer;
+var
+  l, r : Note;
+begin
+  l := Note(Item1);
+  r := Note(Item2);
+  result := l.model.id - r.model.id;
+end;
+
+function idrl(Item1 : Pointer; Item2 : Pointer) : Integer;
+begin
+  result := idlr(Item1, Item2) * -1;
+end;
+
+function titlelr(Item1 : Pointer; Item2 : Pointer) : Integer;
+var
+  l, r : Note;
+begin
+  l := Note(Item1);
+  r := Note(Item2);
+  if l.model.title > r.model.title then
+    result := 1
+  else if l.model.title < r.model.title then
+    result := -1
+  else
+    result := 0;
+end;
+
+function titlerl(Item1 : Pointer; Item2 : Pointer) : Integer;
+begin
+  result := titlelr(Item1, Item2) * -1;
+end;
+
+procedure TForm1.NotesToScrollBox();
+var
+i: integer;
+begin
+  ScrollBox2.DestroyComponents();
+  ScrollBox2.DisableAlign();
+  for i := 0 to notesList.Count - 1 do
+  begin
+    Note(notesList[i]).noteFrame.Parent := ScrollBox2;
+  end;
+  ScrollBox2.EnableAlign();
+end;
+
+procedure TForm1.Sort();
+var
+  i: Integer;
+begin
+  for i := 0 to notesList.Count - 1 do
+  begin
+    Note(notesList[i]).noteFrame.Parent := nil;
+  end;
+  if ComboBox1.ItemIndex = 0 then
+    notesList.Sort(titlelr)
+  else if ComboBox1.ItemIndex = 1 then
+    notesList.Sort(titlerl)
+  else if ComboBox1.ItemIndex = 2 then
+    notesList.Sort(idrl)
+  else if ComboBox1.ItemIndex = 3 then
+    notesList.Sort(idlr);
+  NotesToScrollbox();
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  Sort();
+end;
+
 procedure TForm1.AddNote(n: Note);
 begin
-  notesList.Add(n);
   n.SelectEvent := ChangeNote;
-  n.noteFrame.Parent := ScrollBox2;
-  ScrollBox2.Realign();
+  notesList.Add(n);
+  Sort();
+  ChangeNote(n);
 end;
 
 procedure TForm1.DeleteNote(note: Note);
