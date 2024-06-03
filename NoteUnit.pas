@@ -63,7 +63,7 @@ implementation
 
 function toSQL(s: string) : string;
 begin
-  result := s.Replace('"','""').Replace('\','\\')	;
+  result := s.Replace('"','""').Replace('\','\\').Replace('!','!!').Replace('&','"||chr(38)||"');
 end;
 
 procedure NoteModel.Update();
