@@ -69,8 +69,6 @@ begin
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
   q.SQL.Text := 'SELECT * from notes';
-  Combobox1.ItemIndex := 2;
-  Sort();
   q.Open();
   while not q.Eof do
   begin
@@ -83,6 +81,8 @@ begin
   begin
     Note(notesList[i]).noteFrame.Parent := ScrollBox2;
   end;
+  Combobox1.ItemIndex := 2;
+  Sort();
   if notesList.Count > 0 then
     ChangeNote(notesList[0])
   else
@@ -171,7 +171,7 @@ procedure TForm1.NotesToScrollBox;
 var
   i: Integer;
 begin
-  ScrollBox2.DisableAlign();
+  //ScrollBox2.DisableAlign();
   for i := 0 to notesList.Count - 1 do
     Note(notesList[i]).noteFrame.Parent := ScrollBox2;
   ScrollBox2.EnableAlign();
@@ -183,8 +183,13 @@ var
   i: Integer;
 begin
   ScrollBox2.Visible := false;
+  ScrollBox2.DisableAlign();
   for i := 0 to notesList.Count - 1 do
+  begin
     Note(notesList[i]).noteFrame.Parent := nil;
+    Note(notesList[i]).CreateFrame();
+  end;
+  //ScrollBox2.EnableAlign();
   case ComboBox1.ItemIndex of
     0: notesList.Sort(titlelr);
     1: notesList.Sort(titlerl);
@@ -192,6 +197,8 @@ begin
     3: notesList.Sort(idlr);
   end;
   NotesToScrollBox();
+  if sNote <> nil then
+    ChangeNote(sNote);
   ScrollBox2.Visible := true;
 end;
 
@@ -201,10 +208,15 @@ begin
 end;
 
 procedure TForm1.AddNote(n: Note);
+var i:integer;
 begin
   n.SelectEvent := ChangeNote;
   notesList.Add(n);
-  Sort();
+  n.CreateFrame();
+  ScrollBox2.Visible := false;
+  n.noteFrame.Parent := Scrollbox2;
+  Scrollbox2.Realign();
+  ScrollBox2.Visible := true;
   ChangeNote(n);
 end;
 

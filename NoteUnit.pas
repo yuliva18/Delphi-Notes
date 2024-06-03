@@ -52,6 +52,7 @@ type
       constructor Create(Sender: TObject; conn: TFDConnection; baseBody: string); overload;
       property SelectEvent: TSelectEvent read FSelectEvent write FSelectEvent;
       property model: NoteModel read _model;
+      procedure CreateFrame();
 end;
 
 implementation
@@ -160,22 +161,26 @@ end;
 
 constructor Note.Create(Sender: TObject; q: TFDQuery);
 begin
-  noteFrame := TNoteFrame.Create(nil);
   _model := NoteModel.Create(q);
   _model.BodyPropertyChangedEvent := ReviewBody;
   _model.TitlePropertyChangedEvent := ReviewTitle;
-  noteFrame.TitleLabel.Caption := model.title;
-  noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];
-  noteFrame.DateLabel.Caption := model.date;
-  noteFrame.ClickEvent := Click;
+  CreateFrame();
 end;
 
 constructor Note.Create(Sender: TObject; conn: TFDConnection; baseBody: string);
 begin
-  noteFrame := TNoteFrame.Create(nil);
+
   _model := NoteModel.Create(conn, baseBody);
   _model.BodyPropertyChangedEvent := ReviewBody;
   _model.TitlePropertyChangedEvent := ReviewTitle;
+  CreateFrame();
+
+end;
+
+procedure Note.CreateFrame();
+begin
+  //noteFrame.Free();
+  noteFrame := TNoteFrame.Create(nil);
   noteFrame.TitleLabel.Caption := model.title;
   noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];
   noteFrame.DateLabel.Caption := model.date;
