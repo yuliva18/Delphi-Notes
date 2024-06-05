@@ -63,17 +63,26 @@ implementation
 
 function toSQL(s: string) : string;
 begin
-  result := s.Replace('"','""').Replace('\','\\').Replace('!','!!').Replace('&','"||chr(38)||"');
+  s := s.Replace('"','""').Replace('\','\\').Replace('!','!!').Replace('&','"||chr(38)||"');
+  result := s;
 end;
 
 procedure NoteModel.Update();
 var
   q: TFDQuery;
+  s: string;
 begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
-  q.SQL.Text := Format('UPDATE notes SET title = "%s", body = "%s" WHERE id = %d',[toSQL(title), toSQL(body), id]);
+  s := body;
+  q.SQL.Text := Format('UPDATE notes SET title = "%s" WHERE id = %d',[toSQL(title), id]);
   q.ExecSQL();
+  q.SQL.Text := Format('SELECT * from notes  WHERE id = %d', [id]);
+  q.Active := true;
+  q.Edit;
+  q.FieldByName('body').AsAnsiString := body;
+  q.Post;
+  q.Active := false;
 end;
 
 procedure NoteModel.Delete();
@@ -132,7 +141,7 @@ constructor NoteModel.Create(q: TFDQuery);
 begin
   self._id := q.FieldByName('id').AsInteger;
   self._title := q.FieldByName('title').AsString;
-  self._body := q.FieldByName('body').AsString;
+  self._body := q.FieldByName('body').AsAnsiString;
   self._date := q.FieldByName('date').AsString;
   self._conn := TFDConnection(q.Connection);
 end;
@@ -143,7 +152,7 @@ var
   id: integer;
 begin
   _conn := conn;
-  title := GetNextNoteName(baseTitle);
+  _title := GetNextNoteName(baseTitle);
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   q.SQL.Text := Format('INSERT INTO notes(title, body) VALUES("%s", "%s")',[title, '']);

@@ -10,7 +10,8 @@ uses
   FireDAC.Phys, FireDAC.Phys.SQLite, FireDAC.Phys.SQLiteDef,
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait,
   Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.DatS,
-  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids, System.Generics.Defaults;
+  FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids, System.Generics.Defaults,
+  Vcl.ComCtrls, System.ImageList, Vcl.ImgList;
 
 
 type
@@ -19,10 +20,18 @@ type
     Button1: TButton;
     FDConnection1: TFDConnection;
     FDQuery1: TFDQuery;
-    Memo1: TMemo;
     Button2: TButton;
     Edit1: TEdit;
     ComboBox1: TComboBox;
+    ButtonBold: TButton;
+    RichEdit1: TRichEdit;
+    ButtonItalic: TButton;
+    ButtonUnderline: TButton;
+    ButtonStrikeOut: TButton;
+    ButtonTaLeft: TButton;
+    ImageList1: TImageList;
+    ButtonTaCenter: TButton;
+    ButtonTaRight: TButton;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure ChangeNote(Sender: TObject);
@@ -34,10 +43,17 @@ type
     procedure ScrollBox2MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure Button1Click(Sender: TObject);
-    procedure Memo1Change(Sender: TObject);
+    procedure RichEdit1Change(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
+    procedure ButtonBoldClick(Sender: TObject);
+    procedure ButtonItalicClick(Sender: TObject);
+    procedure ButtonUnderlineClick(Sender: TObject);
+    procedure ButtonStrikeOutClick(Sender: TObject);
+    procedure ButtonTaLeftClick(Sender: TObject);
+    procedure ButtonTaCenterClick(Sender: TObject);
+    procedure ButtonTaRightClick(Sender: TObject);
   private
     sNote: Note;
   public
@@ -52,13 +68,34 @@ implementation
 
 {$R *.dfm}
 
+function TStringsToString(ln: TStrings):string;
+var
+  ts: TStringStream;
+begin
+  ts := TStringStream.Create();
+  ln.SaveToStream(ts);
+  result := ts.DataString;
+end;
+
+procedure LoadStringToRE(s :string; re :TRichEdit);
+var
+  ts: TStringStream;
+  ss: string;
+begin
+  ts := TStringStream.Create();
+  ts.WriteString(s);
+  re.PlainText := false;
+  ts.Position := 0;
+  re.Lines.LoadFromStream(ts);
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 var
 s, i: INTEGER;
 n: Note;
 q: TFDQuery;
 begin
-  Memo1.Text := '';
+  RichEdit1.Text := '';
   Edit1.Text := '';
   ComboBox1.Items.Add('À-ß');
   ComboBox1.Items.Add('ß-À');
@@ -87,7 +124,7 @@ begin
     ChangeNote(notesList[0])
   else
     begin
-      Memo1.Enabled := false;
+      RichEdit1.Enabled := false;
       Edit1.Enabled := false;
     end;
 end;
@@ -121,13 +158,87 @@ begin
     DeleteNote(sNote);
 end;
 
+{$REGION 'StyleButtonsEvents'}
+
+procedure TForm1.ButtonBoldClick(Sender: TObject);
+var
+  i: integer;
+  Bold: Boolean;
+const
+  FS: array [0..0, Boolean] of TFontStyles = (([],[fsBold]));
+begin
+  i := RichEdit1.SelLength;
+  RichEdit1.SelLength := 1;
+  Bold := RichEdit1.SelAttributes.Bold;
+  RichEdit1.SelLength := i;
+  RichEdit1.SelAttributes.Bold := not Bold;
+end;
+
+procedure TForm1.ButtonItalicClick(Sender: TObject);
+var
+  i: integer;
+  Italic: Boolean;
+begin
+  i := RichEdit1.SelLength;
+  RichEdit1.SelLength := 1;
+  Italic := RichEdit1.SelAttributes.Italic;
+  RichEdit1.SelLength := i;
+  RichEdit1.SelAttributes.Italic := not Italic;
+end;
+
+procedure TForm1.ButtonUnderlineClick(Sender: TObject);
+var
+  i: integer;
+  Underline: Boolean;
+begin
+  i := RichEdit1.SelLength;
+  RichEdit1.SelLength := 1;
+  Underline := RichEdit1.SelAttributes.Underline;
+  RichEdit1.SelLength := i;
+  RichEdit1.SelAttributes.Underline := not Underline;
+end;
+
+procedure TForm1.ButtonStrikeOutClick(Sender: TObject);
+var
+  i: integer;
+  StrikeOut: Boolean;
+begin
+  i := RichEdit1.SelLength;
+  RichEdit1.SelLength := 1;
+  StrikeOut := RichEdit1.SelAttributes.StrikeOut;
+  RichEdit1.SelLength := i;
+  RichEdit1.SelAttributes.StrikeOut := not StrikeOut;
+end;
+
+procedure TForm1.ButtonTaCenterClick(Sender: TObject);
+begin
+  RichEdit1.Paragraph.Alignment := taCenter;
+end;
+
+procedure TForm1.ButtonTaLeftClick(Sender: TObject);
+begin
+  RichEdit1.Paragraph.Alignment := taLeftJustify;
+end;
+
+procedure TForm1.ButtonTaRightClick(Sender: TObject);
+begin
+  RichEdit1.Paragraph.Alignment := taRightJustify;
+end;
+
+{$ENDREGION}
+
 procedure TForm1.ChangeNote(Sender: TObject);
 begin
   if sNote <> nil then
     sNote.noteFrame.ParentBackground := true;
   sNote := Note(Sender);
-  Memo1.Text := sNote.model.body;
-  Memo1.Enabled := true;
+  LoadStringToRE(sNote.model.body, RichEdit1);
+//  RichEdit1.SelectAll;
+//  RichEdit1.Paragraph.FirstIndent := 100;
+//  RichEdit1.Paragraph.LeftIndent := 0;
+//  RichEdit1.Paragraph.RightIndent := 100;
+//  RichEdit1.SelLength := 0;
+  RichEdit1.Enabled := true;
   Edit1.Text := sNote.model.title;
   Edit1.Enabled := true;
   snote.noteFrame.ParentBackground := false;
@@ -171,7 +282,6 @@ procedure TForm1.NotesToScrollBox;
 var
   i: Integer;
 begin
-  //ScrollBox2.DisableAlign();
   for i := 0 to notesList.Count - 1 do
     Note(notesList[i]).noteFrame.Parent := ScrollBox2;
   ScrollBox2.EnableAlign();
@@ -189,7 +299,6 @@ begin
     Note(notesList[i]).noteFrame.Parent := nil;
     Note(notesList[i]).CreateFrame();
   end;
-  //ScrollBox2.EnableAlign();
   case ComboBox1.ItemIndex of
     0: notesList.Sort(titlelr);
     1: notesList.Sort(titlerl);
@@ -228,8 +337,8 @@ begin
   else
     begin
       sNote := nil;
-      Memo1.Text := '';
-      Memo1.Enabled := false;
+      RichEdit1.Text := '';
+      RichEdit1.Enabled := false;
       Edit1.Text := '';
       Edit1.Enabled := false;
     end;
@@ -244,10 +353,10 @@ begin
     sNote.model.title := Edit1.Text;
 end;
 
-procedure TForm1.Memo1Change(Sender: TObject);
+procedure TForm1.RichEdit1Change(Sender: TObject);
 begin
   if sNote <> nil then
-    sNote.model.body := Memo1.Text;
+    sNote.model.body := TStringsToString(RichEdit1.Lines);
 end;
 
 end.
