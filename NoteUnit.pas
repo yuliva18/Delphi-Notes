@@ -18,20 +18,23 @@ type
     private
       _conn: TFDConnection;
       _id: integer;
-      _date, _body, _title: string;
+      _date, _body, _title, _rtf: string;
       procedure setBody(value: string);
+      procedure setRtf(value: string);
       procedure setTitle(value: string);
       procedure Update();
       function GetNextNoteName(default: string) : string;
     public
       BodyPropertyChangedEvent: TPropertyChangedEvent;
       TitlePropertyChangedEvent: TPropertyChangedEvent;
+      RtfPropertyChangedEvent: TPropertyChangedEvent;
       constructor Create(q: TFDQuery); overload;
       constructor Create(conn: TFDConnection; baseTitle: string); overload;
       property conn: TFDConnection read _conn;
       property id: integer read _id;
       property body: string read _body write setBody;
       property title: string read _title write setTitle;
+      property rtf: string read _rtf write setRtf;
       property date: string read _date;
       procedure Delete();
 end;
@@ -75,14 +78,15 @@ begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   s := body;
-  q.SQL.Text := Format('UPDATE notes SET title = "%s" WHERE id = %d',[toSQL(title), id]);
+  q.SQL.Text := Format('UPDATE notes SET title = "%s", body = "%s" WHERE id = %d',[toSQL(title), toSQL(body), id]);
   q.ExecSQL();
   q.SQL.Text := Format('SELECT * from notes  WHERE id = %d', [id]);
   q.Active := true;
   q.Edit;
-  q.FieldByName('body').AsAnsiString := body;
+  q.FieldByName('rtf').AsAnsiString := rtf;
   q.Post;
   q.Active := false;
+  q.Free();
 end;
 
 procedure NoteModel.Delete();
@@ -93,12 +97,22 @@ begin
   q.Connection := conn;
   q.SQL.Text := Format('DELETE FROM notes WHERE id = %d',[id]);
   q.ExecSQL();
+  q.Free();
 end;
 
 procedure NoteModel.setBody(value: String);
 begin
   _body := value;
   if Assigned(BodyPropertyChangedEvent) then
+    BodyPropertyChangedEvent();
+    if conn <> nil then
+      Update();
+end;
+
+procedure NoteModel.setRtf(value: String);
+begin
+  _rtf := value;
+  if Assigned(RtfPropertyChangedEvent) then
     BodyPropertyChangedEvent();
     if conn <> nil then
       Update();
@@ -135,13 +149,15 @@ begin
   end;
   q.Close();
   Result := default + ' ' + id.ToString();
+  q.Free();
 end;
 
 constructor NoteModel.Create(q: TFDQuery);
 begin
   self._id := q.FieldByName('id').AsInteger;
   self._title := q.FieldByName('title').AsString;
-  self._body := q.FieldByName('body').AsAnsiString;
+  self._rtf := q.FieldByName('rtf').AsAnsiString;
+  self._body := q.FieldByName('body').AsString;
   self._date := q.FieldByName('date').AsString;
   self._conn := TFDConnection(q.Connection);
 end;
@@ -155,13 +171,14 @@ begin
   _title := GetNextNoteName(baseTitle);
   q := TFDQuery.Create(nil);
   q.Connection := conn;
-  q.SQL.Text := Format('INSERT INTO notes(title, body) VALUES("%s", "%s")',[title, '']);
+  q.SQL.Text := Format('INSERT INTO notes(title, body, rtf) VALUES("%s", "%s", "%s")',[title, '', '']);
   q.ExecSQL();
   id := integer(conn.GetLastAutoGenValue('notes'));
   q.SQL.Text := Format('SELECT * FROM notes WHERE id = %d', [id]);
   q.Open();
   Create(q);
   q.Close();
+  q.Free();
 end;
 
 //-------------------------------------------------------------------------------------------------------
@@ -188,7 +205,7 @@ end;
 
 procedure Note.CreateFrame();
 begin
-  //noteFrame.Free();
+  noteFrame.Free();
   noteFrame := TNoteFrame.Create(nil);
   noteFrame.TitleLabel.Caption := model.title;
   noteFrame.BodyLabel.Caption := (model.body + chr(13)).Split([chr(13)])[0];

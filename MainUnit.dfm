@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 459
-  ClientWidth = 822
+  ClientHeight = 458
+  ClientWidth = 818
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,14 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   DesignSize = (
-    822
-    459)
+    818
+    458)
   TextHeight = 15
   object ScrollBox2: TScrollBox
     Left = 8
     Top = 80
     Width = 161
-    Height = 371
+    Height = 370
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
@@ -36,7 +36,7 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 683
+    Left = 679
     Top = 8
     Width = 131
     Height = 33
@@ -48,7 +48,7 @@ object Form1: TForm1
   object Edit1: TEdit
     Left = 175
     Top = 48
-    Width = 639
+    Width = 635
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = RUSSIAN_CHARSET
@@ -88,8 +88,8 @@ object Form1: TForm1
   object RichEdit1: TRichEdit
     Left = 176
     Top = 80
-    Width = 638
-    Height = 371
+    Width = 634
+    Height = 370
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -199,11 +199,12 @@ object Form1: TForm1
       '    id   INTEGER  PRIMARY KEY AUTOINCREMENT,'
       '    title TEXT,'
       '    body TEXT,'
+      '    rtf TEXT,'
       '    date DATETIME DEFAULT (datetime('#39'now'#39', '#39'localtime'#39') ) '
       '                  NOT NULL'
       ');'
       ''
-      'select * from notes;')
+      'SELECT * FROM notes;')
     Left = 32
     Top = 432
   end

@@ -11,7 +11,7 @@ uses
   FireDAC.Stan.ExprFuncs, FireDAC.Phys.SQLiteWrapper.Stat, FireDAC.VCLUI.Wait,
   Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids, System.Generics.Defaults,
-  Vcl.ComCtrls, System.ImageList, Vcl.ImgList;
+  Vcl.ComCtrls, System.ImageList, Vcl.ImgList, Math;
 
 
 type
@@ -68,27 +68,6 @@ implementation
 
 {$R *.dfm}
 
-function TStringsToString(ln: TStrings):string;
-var
-  ts: TStringStream;
-begin
-  ts := TStringStream.Create();
-  ln.SaveToStream(ts);
-  result := ts.DataString;
-end;
-
-procedure LoadStringToRE(s :string; re :TRichEdit);
-var
-  ts: TStringStream;
-  ss: string;
-begin
-  ts := TStringStream.Create();
-  ts.WriteString(s);
-  re.PlainText := false;
-  ts.Position := 0;
-  re.Lines.LoadFromStream(ts);
-end;
-
 procedure TForm1.FormCreate(Sender: TObject);
 var
 s, i: INTEGER;
@@ -129,6 +108,73 @@ begin
     end;
 end;
 
+{$REGION 'Converters'}
+
+//Конвертер RTF в строку (для сохранения в бд)
+function TStringsToString(ln: TStrings):string;
+var
+  ts: TStringStream;
+begin
+  ts := TStringStream.Create();
+  ln.SaveToStream(ts);
+  result := ts.DataString;
+  ts.Free();
+end;
+
+//Загрузка RTF-строки в RichEdit
+procedure LoadStringToRE(s :string; re :TRichEdit);
+var
+  ts: TStringStream;
+  ss: string;
+begin
+  ts := TStringStream.Create();
+  ts.WriteString(s);
+  re.PlainText := false;
+  ts.Position := 0;
+  re.Lines.LoadFromStream(ts);
+  ts.Free();
+end;
+
+{$ENDREGION}
+
+// Кнопка создания заметки
+procedure TForm1.Button1Click(Sender: TObject);
+var n: Note;
+begin
+  n := Note.Create(Self, FDConnection1, 'Новая заметка');
+  AddNote(n);
+end;
+
+//Кнопка удаления заметки
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  if sNote <> nil then
+    DeleteNote(sNote);
+end;
+
+//Выбор варинта сортирвки
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  Sort();
+end;
+
+//Изменение заголовка активной заметки
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+  if sNote <> nil then
+    sNote.model.title := Edit1.Text;
+end;
+
+//Изменение тела активной заметки
+procedure TForm1.RichEdit1Change(Sender: TObject);
+begin
+  if sNote <> nil then
+  begin
+    sNote.model.rtf := TStringsToString(RichEdit1.Lines);
+    sNote.model.body := RichEdit1.Text;
+  end;
+end;
+
 {$REGION 'ScrollEvents'}
 
 procedure TForm1.ScrollBox2MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -144,19 +190,6 @@ begin
 end;
 
 {$ENDREGION}
-
-procedure TForm1.Button1Click(Sender: TObject);
-var n: Note;
-begin
-  n := Note.Create(Self, FDConnection1, 'Новая заметка');
-  AddNote(n);
-end;
-
-procedure TForm1.Button2Click(Sender: TObject);
-begin
-  if sNote <> nil then
-    DeleteNote(sNote);
-end;
 
 {$REGION 'StyleButtonsEvents'}
 
@@ -227,23 +260,7 @@ end;
 
 {$ENDREGION}
 
-procedure TForm1.ChangeNote(Sender: TObject);
-begin
-  if sNote <> nil then
-    sNote.noteFrame.ParentBackground := true;
-  sNote := Note(Sender);
-  LoadStringToRE(sNote.model.body, RichEdit1);
-//  RichEdit1.SelectAll;
-//  RichEdit1.Paragraph.FirstIndent := 100;
-//  RichEdit1.Paragraph.LeftIndent := 0;
-//  RichEdit1.Paragraph.RightIndent := 100;
-//  RichEdit1.SelLength := 0;
-  RichEdit1.Enabled := true;
-  Edit1.Text := sNote.model.title;
-  Edit1.Enabled := true;
-  snote.noteFrame.ParentBackground := false;
-  sNote.noteFrame.Color := RGB(220, 220, 220);
-end;
+{$REGION 'NoteComparators'}
 
 function idlr(Item1 : Pointer; Item2 : Pointer) : Integer;
 var
@@ -278,6 +295,23 @@ begin
   result := titlelr(Item1, Item2) * -1;
 end;
 
+{$ENDREGION}
+
+//Смена активной заметки
+procedure TForm1.ChangeNote(Sender: TObject);
+begin
+  if sNote <> nil then
+    sNote.noteFrame.ParentBackground := true;
+  sNote := Note(Sender);
+  LoadStringToRE(sNote.model.rtf, RichEdit1);
+  RichEdit1.Enabled := true;
+  Edit1.Text := sNote.model.title;
+  Edit1.Enabled := true;
+  snote.noteFrame.ParentBackground := false;
+  sNote.noteFrame.Color := RGB(220, 220, 220);
+end;
+
+//Добавление заметок из списка в ScrollBox
 procedure TForm1.NotesToScrollBox;
 var
   i: Integer;
@@ -288,6 +322,7 @@ begin
   ScrollBox2.Realign();
 end;
 
+//Сортировка заметок
 procedure TForm1.Sort;
 var
   i: Integer;
@@ -311,16 +346,13 @@ begin
   ScrollBox2.Visible := true;
 end;
 
-procedure TForm1.ComboBox1Change(Sender: TObject);
-begin
-  Sort();
-end;
-
+//Добавление заметки в список и на ScrollBox
 procedure TForm1.AddNote(n: Note);
-var i:integer;
+var i: integer;
 begin
   n.SelectEvent := ChangeNote;
-  notesList.Add(n);
+  //notesList.Add(n);
+  notesList.Insert(0, n);
   n.CreateFrame();
   ScrollBox2.Visible := false;
   n.noteFrame.Parent := Scrollbox2;
@@ -329,11 +361,15 @@ begin
   ChangeNote(n);
 end;
 
+//Удаление активной заметки
 procedure TForm1.DeleteNote(note: Note);
+var
+  i: integer;
 begin
+  i := Min(notesList.IndexOf(note)	, ScrollBox2.ControlCount - 2);
   notesList.Remove(note);
   if notesList.Count > 0 then
-    ChangeNote(notesList[notesList.Count - 1])
+    ChangeNote(notesList[i])
   else
     begin
       sNote := nil;
@@ -344,19 +380,9 @@ begin
     end;
   ScrollBox2.RemoveControl(note.noteFrame);
   note.model.Delete();
+  note.noteFrame.Free();
+  note.model.Free();
   note.Free();
-end;
-
-procedure TForm1.Edit1Change(Sender: TObject);
-begin
-  if sNote <> nil then
-    sNote.model.title := Edit1.Text;
-end;
-
-procedure TForm1.RichEdit1Change(Sender: TObject);
-begin
-  if sNote <> nil then
-    sNote.model.body := TStringsToString(RichEdit1.Lines);
 end;
 
 end.
