@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 458
-  ClientWidth = 818
+  ClientHeight = 457
+  ClientWidth = 814
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,14 +12,21 @@ object Form1: TForm1
   Font.Style = []
   OnCreate = FormCreate
   DesignSize = (
-    818
-    458)
+    814
+    457)
   TextHeight = 15
+  object LabelFS: TLabel
+    Left = 416
+    Top = 11
+    Width = 91
+    Height = 15
+    Caption = #1056#1072#1079#1084#1077#1088' '#1096#1088#1080#1092#1090#1072':'
+  end
   object ScrollBox2: TScrollBox
     Left = 8
     Top = 80
     Width = 161
-    Height = 370
+    Height = 369
     VertScrollBar.Tracking = True
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 0
@@ -36,7 +43,7 @@ object Form1: TForm1
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 679
+    Left = 675
     Top = 8
     Width = 131
     Height = 33
@@ -48,7 +55,7 @@ object Form1: TForm1
   object Edit1: TEdit
     Left = 175
     Top = 48
-    Width = 635
+    Width = 631
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     Font.Charset = RUSSIAN_CHARSET
@@ -66,8 +73,8 @@ object Form1: TForm1
     Top = 48
     Width = 161
     Height = 23
-    TabOrder = 4
-    Text = 'ComboBox1'
+    Style = csDropDownList
+    TabOrder = 13
     OnChange = ComboBox1Change
   end
   object ButtonBold: TButton
@@ -88,8 +95,8 @@ object Form1: TForm1
   object RichEdit1: TRichEdit
     Left = 176
     Top = 80
-    Width = 634
-    Height = 370
+    Width = 630
+    Height = 369
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWindowText
@@ -101,8 +108,9 @@ object Form1: TForm1
       'RichEdit1')
     ParentFont = False
     ScrollBars = ssVertical
-    TabOrder = 6
+    TabOrder = 4
     OnChange = RichEdit1Change
+    OnSelectionChange = RichEdit1SelectionChange
   end
   object ButtonItalic: TButton
     Left = 207
@@ -117,7 +125,7 @@ object Form1: TForm1
     Font.Name = 'Segoe UI'
     Font.Style = [fsItalic]
     ParentFont = False
-    TabOrder = 7
+    TabOrder = 6
     OnClick = ButtonItalicClick
   end
   object ButtonUnderline: TButton
@@ -132,7 +140,7 @@ object Form1: TForm1
     Font.Name = 'Segoe UI'
     Font.Style = [fsUnderline]
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 7
     OnClick = ButtonUnderlineClick
   end
   object ButtonStrikeOut: TButton
@@ -147,7 +155,7 @@ object Form1: TForm1
     Font.Name = 'Segoe UI'
     Font.Style = [fsStrikeOut]
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 8
     OnClick = ButtonStrikeOutClick
   end
   object ButtonTaLeft: TButton
@@ -158,7 +166,7 @@ object Form1: TForm1
     ImageAlignment = iaCenter
     ImageIndex = 0
     Images = ImageList1
-    TabOrder = 10
+    TabOrder = 9
     OnClick = ButtonTaLeftClick
   end
   object ButtonTaCenter: TButton
@@ -169,7 +177,7 @@ object Form1: TForm1
     ImageAlignment = iaCenter
     ImageIndex = 1
     Images = ImageList1
-    TabOrder = 11
+    TabOrder = 10
     OnClick = ButtonTaCenterClick
   end
   object ButtonTaRight: TButton
@@ -180,8 +188,17 @@ object Form1: TForm1
     ImageAlignment = iaCenter
     ImageIndex = 2
     Images = ImageList1
-    TabOrder = 12
+    TabOrder = 11
     OnClick = ButtonTaRightClick
+  end
+  object ComboBox2: TComboBox
+    Left = 510
+    Top = 8
+    Width = 41
+    Height = 23
+    Style = csDropDownList
+    TabOrder = 12
+    OnChange = ComboBox2Change
   end
   object FDConnection1: TFDConnection
     Params.Strings = (

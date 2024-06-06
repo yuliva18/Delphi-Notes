@@ -32,6 +32,8 @@ type
     ImageList1: TImageList;
     ButtonTaCenter: TButton;
     ButtonTaRight: TButton;
+    ComboBox2: TComboBox;
+    LabelFS: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure DeleteNote(note: Note);
     procedure ChangeNote(Sender: TObject);
@@ -54,8 +56,11 @@ type
     procedure ButtonTaLeftClick(Sender: TObject);
     procedure ButtonTaCenterClick(Sender: TObject);
     procedure ButtonTaRightClick(Sender: TObject);
+    procedure ComboBox2Change(Sender: TObject);
+    procedure RichEdit1SelectionChange(Sender: TObject);
   private
     sNote: Note;
+    baseNoteTitle: string;
   public
     notesList: TList;
   end;
@@ -70,17 +75,21 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-s, i: INTEGER;
-n: Note;
-q: TFDQuery;
+  s, i: INTEGER;
+  n: Note;
+  q: TFDQuery;
+const
+  fontSizes: Array [0..17] of Integer = (6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72);
 begin
+  baseNoteTitle := 'Новая заметка';
   RichEdit1.Text := '';
   Edit1.Text := '';
   ComboBox1.Items.Add('А-Я');
   ComboBox1.Items.Add('Я-А');
   ComboBox1.Items.Add('Сначала новые');
   ComboBox1.Items.Add('Сначала старые');
-  ComboBox1.Style:=csDropDownList;
+  for i := 0 to Length(fontSizes) - 1 do
+    ComboBox2.Items.Add(fontSizes[i].ToString());
   notesList := TList.Create();
   q := TFDQuery.Create(Self);
   q.Connection := FDConnection1;
@@ -88,11 +97,18 @@ begin
   q.Open();
   while not q.Eof do
   begin
-    n := Note.Create(self, q);
+    n := Note.Create(q);
     AddNote(n);
     q.Next;
   end;
   q.Close();
+  if notesList.Count = 0 then
+    begin
+      n := Note.Create(FDConnection1, baseNoteTitle);
+      n.model.body := 'Напиши здесь что-нибудь!';
+      n.model.rtf := n.model.body;
+      AddNote(n);
+    end;
   for i := 0 to notesList.Count - 1 do
   begin
     Note(notesList[i]).noteFrame.Parent := ScrollBox2;
@@ -141,7 +157,7 @@ end;
 procedure TForm1.Button1Click(Sender: TObject);
 var n: Note;
 begin
-  n := Note.Create(Self, FDConnection1, 'Новая заметка');
+  n := Note.Create(FDConnection1, baseNoteTitle);
   AddNote(n);
 end;
 
@@ -156,6 +172,14 @@ end;
 procedure TForm1.ComboBox1Change(Sender: TObject);
 begin
   Sort();
+end;
+
+//Выбор размера шрифта
+procedure TForm1.ComboBox2Change(Sender: TObject);
+var i: integer;
+begin
+  i := Integer.Parse(ComboBox2.Text);
+  RichEdit1.SelAttributes.Size := i;
 end;
 
 //Изменение заголовка активной заметки
@@ -174,6 +198,14 @@ begin
     sNote.model.body := RichEdit1.Text;
   end;
 end;
+
+//Изменение выделения
+procedure TForm1.RichEdit1SelectionChange(Sender: TObject);
+begin
+  if RichEdit1.SelLength = 0 then
+    ComboBox2.ItemIndex := ComboBox2.Items.IndexOf(RichEdit1.SelAttributes.Size.ToString())
+end;
+
 
 {$REGION 'ScrollEvents'}
 
@@ -351,7 +383,6 @@ procedure TForm1.AddNote(n: Note);
 var i: integer;
 begin
   n.SelectEvent := ChangeNote;
-  //notesList.Add(n);
   notesList.Insert(0, n);
   n.CreateFrame();
   ScrollBox2.Visible := false;

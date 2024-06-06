@@ -12,6 +12,7 @@ uses
   Data.DB, FireDAC.Comp.Client, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, Vcl.Grids, Vcl.DBGrids;
 
+//Класс для хранения данных заметки из бд
 type
   TPropertyChangedEvent = procedure() of object;
   NoteModel = Class
@@ -39,6 +40,7 @@ type
       procedure Delete();
 end;
 
+//Класс для связи NoteFrame и NoteModel
 type
   TSelectEvent = procedure(Sender: TObject) of object;
   Note = Class
@@ -51,8 +53,8 @@ type
       procedure ReviewTitle();
     public
       noteFrame: TNoteFrame;
-      constructor Create(Sender: TObject; q: TFDQuery); overload;
-      constructor Create(Sender: TObject; conn: TFDConnection; baseBody: string); overload;
+      constructor Create(q: TFDQuery); overload;
+      constructor Create(conn: TFDConnection; baseTitle: string); overload;
       property SelectEvent: TSelectEvent read FSelectEvent write FSelectEvent;
       property model: NoteModel read _model;
       procedure CreateFrame();
@@ -70,6 +72,7 @@ begin
   result := s;
 end;
 
+//Обновление заметки в бд
 procedure NoteModel.Update();
 var
   q: TFDQuery;
@@ -89,6 +92,7 @@ begin
   q.Free();
 end;
 
+//Удаление заметки из бд
 procedure NoteModel.Delete();
 var
   q: TFDQuery;
@@ -100,6 +104,7 @@ begin
   q.Free();
 end;
 
+//Set-теры, вызывающие Update в бд
 procedure NoteModel.setBody(value: String);
 begin
   _body := value;
@@ -127,6 +132,7 @@ begin
       Update();
 end;
 
+//Получение следующего стандартного имени заметки (Новая заметка 1 -> Новая заметка 2)
 function NoteModel.GetNextNoteName(default: string) : string;
 var
 q: TFDQuery;
@@ -153,6 +159,7 @@ begin
   q.Free();
 end;
 
+//Конструктор для заметки, существующей в бд
 constructor NoteModel.Create(q: TFDQuery);
 begin
   self._id := q.FieldByName('id').AsInteger;
@@ -163,6 +170,7 @@ begin
   self._conn := TFDConnection(q.Connection);
 end;
 
+//Конструктор для заметки, которая не существует в бд
 constructor NoteModel.Create(conn: TFDConnection; baseTitle: string);
 var
   q: TFDQuery;
@@ -186,7 +194,8 @@ end;
 //                                                Note
 //-------------------------------------------------------------------------------------------------------
 
-constructor Note.Create(Sender: TObject; q: TFDQuery);
+//Конструктор для заметки, существующей в бд
+constructor Note.Create(q: TFDQuery);
 begin
   _model := NoteModel.Create(q);
   _model.BodyPropertyChangedEvent := ReviewBody;
@@ -194,16 +203,18 @@ begin
   CreateFrame();
 end;
 
-constructor Note.Create(Sender: TObject; conn: TFDConnection; baseBody: string);
+//Конструктор для заметки, которая не существует в бд
+constructor Note.Create(conn: TFDConnection; baseTitle: string);
 begin
 
-  _model := NoteModel.Create(conn, baseBody);
+  _model := NoteModel.Create(conn, baseTitle);
   _model.BodyPropertyChangedEvent := ReviewBody;
   _model.TitlePropertyChangedEvent := ReviewTitle;
   CreateFrame();
 
 end;
 
+//Создание/пересоздание NoteFrame для заметки
 procedure Note.CreateFrame();
 begin
   noteFrame.Free();
@@ -214,6 +225,7 @@ begin
   noteFrame.ClickEvent := Click;
 end;
 
+//Обработчики
 procedure Note.DoSelectEvent(Sender: TObject);
 begin
   if Assigned(FSelectEvent) then
