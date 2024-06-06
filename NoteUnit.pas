@@ -135,7 +135,8 @@ begin
   q := TFDQuery.Create(nil);
   q.Connection := conn;
   q.SQL.Text := 'select min(cur - (cur != lg + 1) * (cur - lg - 1) + (cur = lg + 1)) as id from (select lag(cur, 1, 0) over () as lg, lead(cur, 1, 0) over () as ld, cur ' +
-  'from (select distinct cast(substr(title, ' + (default.Length + 1).ToString() + ') AS integer) as cur from notes where title like "' + default+ ' %" order by cur)) ' +
+  'from (select distinct cast(s AS integer) as cur from (select substr(title, ' + (default.Length + 1).ToString() +
+  ') as s from notes where title like "' + default +' %") where s = cast(s AS integer) order by cur)) ' +
   'where cur != lg + 1 or cur != ld - 1';
   q.Open();
   while not q.Eof do
